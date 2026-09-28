@@ -1,0 +1,26 @@
+{
+  "stryker-mutator": {
+    "project-info": {
+      "name": "NineBlock"
+    },
+    "solution": "NineBlock.sln",
+    "project": "NineBlock.csproj",
+    "test-projects": ["NineBlock.Tests.csproj"],
+    "reporters": [
+      "clear-text",
+      "progress",
+      "html",
+      "json"
+    ],
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 50
+    },
+    "coverage-analysis": "perTest",
+    "mutate": [
+      "Services/NineBoxMatrixService.cs",
+      "Services/EmployeeEvaluationService.cs"
+    ]
+  }
+}

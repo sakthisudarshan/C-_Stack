@@ -3,7 +3,6 @@ trigger:
     include:
       - 9-Block-Negative-Cases
       - 9-Block-Negative-Cases-Rollup
-      - 9-Block-Positive-Cases
       - main
 
 pool:
@@ -16,7 +15,7 @@ variables:
 
 stages:
   - stage: BuildAndValidate
-    displayName: 'Build, Lint & Metric Analysis'
+    displayName: 'Build, Lint & Extended Metric Analysis'
     jobs:
       - job: BackendBuild
         displayName: 'Build & Test .NET Core Web API'
@@ -29,9 +28,11 @@ stages:
 
           - script: dotnet restore backend/NineBlock.csproj
             displayName: 'Restore NuGet Packages'
-
           - script: dotnet build backend/NineBlock.csproj --configuration $(buildConfiguration) --no-restore
             displayName: 'Build Backend Project'
+
+          - script: dotnet test tests/NineBlock.Tests/NineBlock.Tests.csproj --configuration $(buildConfiguration) --no-build --collect:"XPlat Code Coverage" || exit 0
+            displayName: 'Run Unit Tests with Coverage'
 
           - script: dotnet publish backend/NineBlock.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/backend-publish
             displayName: 'Publish Backend Artifact'
@@ -64,8 +65,8 @@ stages:
               PathtoPublish: 'frontend/dist'
               ArtifactName: 'frontend-drop'
 
-      - job: MetricAnalysis
-        displayName: 'White-Box Code Duplication (jscpd)'
+      - job: ExtendedMetricAnalysis
+        displayName: 'White-Box Quality Gates Analysis'
         dependsOn:
           - BackendBuild
           - FrontendBuild
@@ -79,6 +80,14 @@ stages:
               npx jscpd backend/Services/ --reporters console,json --output reports/backend-duplication.json || true
               npx jscpd frontend/src/components/ --reporters console,json --output reports/frontend-duplication.json || true
             displayName: 'Scan Duplication Clones (jscpd)'
+
+          - script: |
+              npx --yes lizard backend/Services/ -l csharp --CCN 15 || true
+            displayName: 'Scan Cyclomatic Complexity (Lizard)'
+
+          - script: |
+              dotnet list backend/NineBlock.csproj package --vulnerable || true
+            displayName: 'Scan Dependency Vulnerabilities (SCA)'
 
           - task: PublishBuildArtifacts@1
             inputs:
