@@ -1,0 +1,7 @@
+<Project>
+  <!-- Declares the C# language version at the repository root for tooling that scans project metadata without running MSBuild imports. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>12.0</LangVersion>
+  </PropertyGroup>
+</Project>
