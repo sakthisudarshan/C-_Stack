@@ -16,6 +16,7 @@ This branch represents the **Golden Positive Benchmark** for White-Box static an
 | **SQL Database** | Microsoft SQL Server (T-SQL) | DDL schema, reference seeds, and secure parameterized procedures |
 | **Frontend** | React 18.3.1 (Parcel Bundler) | Modular UI with shared quadrant utility services |
 | **Test Suite** | xUnit + Coverlet (.NET 8.0) | High statement, branch, and path coverage across all 9 quadrants |
+| **CI / CD & Scripts** | GitHub Actions + Azure Pipelines + NPM | Automated CI/CD, coverage publishing, and one-click White-Box scans |
 
 ---
 

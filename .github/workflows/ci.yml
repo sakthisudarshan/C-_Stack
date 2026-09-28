@@ -1,0 +1,114 @@
+name: 9-Block CI/CD Pipeline (Positive Case)
+
+on:
+  push:
+    branches:
+      - 9-Block-positive-Cases
+      - 9-Block-positive-Cases-Parcel
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  backend-build-and-test:
+    name: Backend CI (.NET 8.0 LTS + Coverage)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore Backend Dependencies
+        run: dotnet restore NineBlock.sln
+
+      - name: Build Solution (Release)
+        run: dotnet build NineBlock.sln --configuration Release --no-restore
+
+      - name: Run Test Suite with Code Coverage (Coverlet)
+        run: dotnet test tests/NineBlock.Tests/NineBlock.Tests.csproj --configuration Release --no-build --collect:"XPlat Code Coverage"
+
+      - name: Upload Test Results & Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-coverage
+          path: tests/NineBlock.Tests/TestResults/
+
+  frontend-build:
+    name: Frontend CI (React 18 + Parcel)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Build Vite Production Bundle
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload Frontend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+
+  white-box-analysis:
+    name: White-Box Quality Gates Analysis
+    runs-on: ubuntu-latest
+    needs: [backend-build-and-test, frontend-build]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Python (for Lizard Complexity)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Lizard Code Complexity Analyzer
+        run: pip install lizard
+
+      - name: 1. Code Duplication Scan (jscpd) - Positive Verification (0% Clones)
+        run: |
+          npx jscpd backend/Services/ frontend/src/utils/ --threshold 0 --reporters console,json --output reports/duplication.json
+
+      - name: 2. Cyclomatic & Cognitive Complexity Scan (Lizard)
+        run: |
+          mkdir -p reports
+          lizard backend/Services/ frontend/src/utils/ -l csharp,javascript --CCN 15 -o reports/complexity.html
+
+      - name: 3. Static Security Analysis (Semgrep SAST)
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/default
+            p/csharp
+            p/javascript
+        continue-on-error: true
+
+      - name: 4. Dependency SCA Audit (npm audit)
+        working-directory: frontend
+        run: npm audit || true
+
+      - name: Upload White-Box Metrics Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: white-box-reports
+          path: reports/
