@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>12.0</LangVersion>
     <RootNamespace>ScholarshipCMGroups.Api.Tests</RootNamespace>
     <AssemblyName>ScholarshipCMGroups.Api.Tests</AssemblyName>
     <IsPackable>false</IsPackable>
@@ -14,8 +16,18 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <!-- Produces the Cobertura coverage report that the Excel code-coverage metrics read. -->
+    <!-- Produces the Cobertura coverage report that the Excel code-coverage metrics read (Coverlet 6.0.0). -->
     <PackageReference Include="coverlet.collector" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <!-- AltCover path coverage tool version 8.8.173 -->
+    <PackageReference Include="altcover" Version="8.8.173">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <!-- Roslyn NetAnalyzers version 8.0.0 -->
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
