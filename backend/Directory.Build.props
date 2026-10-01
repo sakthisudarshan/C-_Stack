@@ -22,6 +22,14 @@
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Roslyn NetAnalyzers version 8.0.0 for all backend projects -->
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <!--
     NuGet audit surfaces vulnerable transitive packages at restore time. This is the
     evidence source for the SCA metric family ("Known CVE Count", "Supply Chain Security"),
